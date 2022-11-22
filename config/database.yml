@@ -1,0 +1,40 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  # https://guides.rubyonrails.org/configuring.html#database-pooling
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+timeouts: &timeouts
+  connect_timeout: 2
+  checkout_timeout: 5
+  variables:
+    statement_timeout: <%= ENV.fetch("STATEMENT_TIMEOUT") { 5000 } %> #ms
+
+development:
+  <<: *default
+  database: ecomex_next_development
+  username: <%= ENV["DATABASE_USER"] %>
+  password: <%= ENV["DATABASE_PASSWORD"] %>
+  host: <%= ENV.fetch("DATABASE_HOST") { 'localhost' } %>
+  port: 5432
+
+test:
+  <<: *default
+  database: ecomex_next_test
+  username: <%= ENV["DATABASE_USER"] %>
+  password: <%= ENV["DATABASE_PASSWORD"] %>
+  host: <%= ENV.fetch("DATABASE_HOST") { 'localhost' } %>
+
+staging:
+  <<: *default
+  <<: *timeouts
+  url: <%= ENV['DATABASE_URL'] %>
+  sslmode: verify-full
+  sslrootcert: <%= Rails.root.join('config', 'ca-certificate.crt') %>
+
+production:
+  <<: *default
+  <<: *timeouts
+  url: <%= ENV['DATABASE_URL'] %>
+  sslmode: verify-full
+  sslrootcert: <%= Rails.root.join('config', 'ca-certificate.crt') %>
